@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{%block content %}
+<h2 class="text-2xl font-bold mb-4">My Orders</h2>
+    {% for o in orders %}
+        <div class="bg-white p-4 mb-4 shadow rounded flex justify-between ">
+            <span>
+                {% if o.status == "pending"%}
+                <span class="text-yellow-600 font-medium">Pending</span>
+                {% elif o.status == "shipped"%}
+                <span class="text-blue-600 font-medium">Shipped</span>
+                {% else %}
+                <span class="text-green-600">{{ o.status }}
+
+            </span>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}
+

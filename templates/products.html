@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Products</h2>
+
+<div class ='grid grid-cols-1 md:grid-cols-3 gap-6'>
+    {% for p in products %}
+    <div class="bg-white p-4 shadow rounded hover:shadow-lg transition">
+        <h3 class="font-semibold text-lg>{{ p.name }}</h3>
+        <p class="text-gray-600">Rs{{ p.price }}</p>
+
+        {% if p.stock > 0 %}
+        <span class="text-green-600 text-sm">In Stock</span>
+        {% else %}
+        <span class="text-red-600 text-sm">Out of Stock</span>
+        {% endif %}
+
+        <a href="/products/{{ p.id }}/" class="block mt-4 text-blue-600 font-medium">View Details</a>
+
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
