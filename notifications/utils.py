@@ -1,5 +1,5 @@
 #in-app notification
 from .models import Notification
 
-def create_notification(user, message):
+def notify(user, message):
     Notification.objects.create(user=user, message=message)
