@@ -77,11 +77,23 @@
                         <td>{{ delivery.assigned_at|slice:":10" }}</td>
                         <td>
                             {% if delivery.status == 'assigned' %}
-                            <button class="btn btn-sm btn-primary">Mark as Picked</button>
+                            <form method="post" action="/dashboard/delivery/{{ delivery.id }}/update/" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="picked">
+                                <button type="submit" class="btn btn-sm btn-primary">Mark as Picked</button>
+                            </form>
                             {% elif delivery.status == 'picked' %}
-                            <button class="btn btn-sm btn-warning">Mark On Way</button>
+                            <form method="post" action="/dashboard/delivery/{{ delivery.id }}/update/" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="on_way">
+                                <button type="submit" class="btn btn-sm btn-warning">Mark On Way</button>
+                            </form>
                             {% elif delivery.status == 'on_way' %}
-                            <button class="btn btn-sm btn-success">Mark Delivered</button>
+                            <form method="post" action="/dashboard/delivery/{{ delivery.id }}/update/" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="delivered">
+                                <button type="submit" class="btn btn-sm btn-success">Mark Delivered</button>
+                            </form>
                             {% endif %}
                         </td>
                     </tr>

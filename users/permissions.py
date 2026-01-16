@@ -14,4 +14,4 @@ class IsCustomer(BasePermission):
     
 class IsDeliveryPerson(BasePermission):
     def has_permission(self, request, view):
-        return request.user.role == 'delivery_person'
+        return request.user.role in ['delivery_person', 'delivery']

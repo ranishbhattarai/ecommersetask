@@ -135,8 +135,15 @@ def product_list(request):
             return redirect('/login/')
     
     if res.status_code == 200:
-        products = res.json()
-        return render(request, 'products.html', {'products': products})
+        data = res.json()
+        # Handle paginated response
+        products = data.get('results', data) if isinstance(data, dict) else data
+        response = render(request, 'products.html', {'products': products})
+        # Add cache-control headers to prevent browser caching
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
     else:
         return redirect('/login/')
 
@@ -157,9 +164,61 @@ def product_detail(request,product_id):
     
     if res.status_code == 200:
         product = res.json()
-        return render(request, 'product_detail.html', {'product': product})
+        response = render(request, 'product_detail.html', {'product': product})
+        # Add cache-control headers to prevent browser caching
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
     else:
         return redirect('/login/')
+
+def place_order(request, product_id):
+    if request.method != 'POST':
+        return redirect(f'/products/{product_id}/')
+    
+    headers = get_auth_headers(request)
+    if not headers:
+        return redirect('/login/')
+    
+    quantity = request.POST.get('quantity', 1)
+    
+    # Make API request to place order
+    data = {
+        'product_id': product_id,
+        'quantity': int(quantity)
+    }
+    
+    res = requests.post(f"{API_URL}orders/place-order/", json=data, headers=headers)
+    
+    # If unauthorized, try to refresh token
+    if res.status_code == 401:
+        headers = refresh_token_and_retry(request)
+        if headers:
+            res = requests.post(f"{API_URL}orders/place-order/", json=data, headers=headers)
+        else:
+            return redirect('/login/')
+    
+    # Get product details to show again
+    product_res = requests.get(f"{API_URL}products/{product_id}/", headers=headers)
+    product = product_res.json() if product_res.status_code == 200 else {}
+    
+    if res.status_code in [200, 201]:
+        return render(request, 'product_detail.html', {
+            'product': product,
+            'success': 'Order placed successfully! Check your orders page.'
+        })
+    else:
+        error_message = 'Failed to place order'
+        try:
+            error_data = res.json()
+            error_message = error_data.get('error', error_message)
+        except:
+            pass
+        return render(request, 'product_detail.html', {
+            'product': product,
+            'error': error_message
+        })
 
 def my_orders(request):
     headers=get_auth_headers(request)
@@ -177,7 +236,9 @@ def my_orders(request):
             return redirect('/login/')
     
     if res.status_code == 200:
-        orders = res.json()
+        data = res.json()
+        # Handle paginated response
+        orders = data.get('results', data) if isinstance(data, dict) else data
         return render(request, 'orders.html', {'orders': orders})
     else:
         return redirect('/login/')
@@ -279,12 +340,118 @@ def admin_dashboard(request):
         deliveries = []
         deliveries_count = 0
     
+    # Get delivery persons for assignment
+    users_res = requests.get(f"{API_URL}user-profile/", headers=headers)
+    delivery_persons = []
+    # Note: We'd need an endpoint to get all users, for now we'll handle it differently
+    
+    # Find orders that don't have delivery assignments
+    assigned_order_ids = [d.get('order') for d in deliveries if d.get('order')]
+    unassigned_orders = [o for o in orders if o.get('id') not in assigned_order_ids and o.get('status') in ['PENDING', 'PAID']]
+    
     context = {
         'products_count': products_count,
         'orders_count': orders_count,
         'deliveries_count': deliveries_count,
         'orders': orders[:5],  # Show last 5 orders
         'deliveries': deliveries[:5],  # Show last 5 deliveries
+        'unassigned_orders': unassigned_orders[:10],  # Show unassigned orders
+    }
+    return render(request, 'admin_dashboard.html', context)
+
+def assign_delivery(request, order_id):
+    """Admin assigns delivery to an order"""
+    if request.method != 'POST':
+        return redirect('/dashboard/admin/')
+    
+    headers = get_auth_headers(request)
+    if not headers:
+        return redirect('/login/')
+    
+    # Check if user is admin
+    user_role = get_user_role(request)
+    if user_role != 'admin':
+        return redirect('/dashboard/admin/')
+    
+    delivery_person_id = request.POST.get('delivery_person_id')
+    if not delivery_person_id:
+        return redirect('/dashboard/admin/')
+    
+    # Create delivery assignment via API
+    data = {
+        'order': order_id,
+        'delivery_person': delivery_person_id,
+        'status': 'assigned'
+    }
+    
+    res = requests.post(f"{API_URL}deliveries/", json=data, headers=headers)
+    
+    # If unauthorized, try to refresh token
+    if res.status_code == 401:
+        headers = refresh_token_and_retry(request)
+        if headers:
+            res = requests.post(f"{API_URL}deliveries/", json=data, headers=headers)
+    
+    return redirect('/dashboard/admin/')
+    
+    # Get products count
+    products_res = requests.get(f"{API_URL}products/", headers=headers)
+    if products_res.status_code == 200:
+        products_data = products_res.json()
+        # Handle paginated response
+        if isinstance(products_data, dict) and 'results' in products_data:
+            products_count = products_data.get('count', len(products_data['results']))
+        else:
+            products_count = len(products_data) if isinstance(products_data, list) else 0
+    else:
+        products_count = 0
+    
+    # Get orders count
+    orders_res = requests.get(f"{API_URL}orders/", headers=headers)
+    if orders_res.status_code == 200:
+        orders_data = orders_res.json()
+        # Handle paginated response
+        if isinstance(orders_data, dict) and 'results' in orders_data:
+            orders = orders_data['results']
+            orders_count = orders_data.get('count', len(orders))
+        else:
+            orders = orders_data if isinstance(orders_data, list) else []
+            orders_count = len(orders)
+    else:
+        orders = []
+        orders_count = 0
+    
+    # Get deliveries count
+    deliveries_res = requests.get(f"{API_URL}deliveries/", headers=headers)
+    if deliveries_res.status_code == 200:
+        deliveries_data = deliveries_res.json()
+        # Handle paginated response
+        if isinstance(deliveries_data, dict) and 'results' in deliveries_data:
+            deliveries = deliveries_data['results']
+            deliveries_count = deliveries_data.get('count', len(deliveries))
+        else:
+            deliveries = deliveries_data if isinstance(deliveries_data, list) else []
+            deliveries_count = len(deliveries)
+    else:
+        deliveries = []
+        deliveries_count = 0
+    
+    # Get delivery persons for assignment
+    users_res = requests.get(f"{API_URL}user-profile/", headers=headers)
+    delivery_persons = []
+    # Note: We'd need an endpoint to get all users, for now we'll handle it differently
+    
+    # Find orders that don't have delivery assignments
+    assigned_order_ids = [d.get('order') for d in deliveries if d.get('order')]
+    unassigned_orders = [o for o in orders if o.get('id') not in assigned_order_ids and o.get('status') in ['PENDING', 'PAID']]
+    
+    context = {
+        'products_count': products_count,
+        'orders_count': orders_count,
+        'deliveries_count': deliveries_count,
+        'orders': orders[:5],  # Show last 5 orders
+        'deliveries': deliveries[:5],  # Show last 5 deliveries
+        'unassigned_orders': unassigned_orders[:10],  # Show unassigned orders
     }
     return render(request, 'admin_dashboard.html', context)
 
@@ -378,6 +545,36 @@ def delivery_dashboard(request):
         'pending_deliveries': assigned + picked + on_way,
     }
     return render(request, 'delivery_dashboard.html', context)
+
+def update_delivery_status(request, delivery_id):
+    """Update delivery status"""
+    if request.method != 'POST':
+        return redirect('/dashboard/delivery/')
+    
+    headers = get_auth_headers(request)
+    if not headers:
+        return redirect('/login/')
+    
+    # Check if user is delivery person
+    user_role = get_user_role(request)
+    if user_role not in ['delivery', 'delivery_person']:
+        return redirect('/dashboard/delivery/')
+    
+    new_status = request.POST.get('status')
+    if not new_status:
+        return redirect('/dashboard/delivery/')
+    
+    # Make PATCH request to update delivery status
+    data = {'status': new_status}
+    res = requests.patch(f"{API_URL}deliveries/{delivery_id}/", json=data, headers=headers)
+    
+    # If unauthorized, try to refresh token
+    if res.status_code == 401:
+        headers = refresh_token_and_retry(request)
+        if headers:
+            res = requests.patch(f"{API_URL}deliveries/{delivery_id}/", json=data, headers=headers)
+    
+    return redirect('/dashboard/delivery/')
 
 def dashboard(request):
     """Main dashboard that redirects based on user role"""

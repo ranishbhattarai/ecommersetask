@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Success/Error Messages -->
+    {% if success %}
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg" role="alert">
+        <div class="flex items-center">
+            <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="font-bold">Success!</p>
+                <p>{{ success }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if error %}
+    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg" role="alert">
+        <div class="flex items-center">
+            <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+            <div>
+                <p class="font-bold">Error!</p>
+                <p>{{ error }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="/" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to Products
+        </a>
+    </div>
+
+    <!-- Product Detail Card -->
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="grid md:grid-cols-2 gap-8 p-8">
+            <!-- Product Image Placeholder -->
+            <div class="flex items-center justify-center bg-gray-100 rounded-lg p-12">
+                <div class="text-center">
+                    <svg class="w-48 h-48 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <p class="text-gray-500 mt-4 text-lg">{{ product.name }}</p>
+                </div>
+            </div>
+
+            <!-- Product Information -->
+            <div class="flex flex-col justify-between">
+                <div>
+                    <!-- Product Title & Category -->
+                    <div class="mb-4">
+                        {% if product.category %}
+                        <span class="inline-block bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full mb-3">
+                            {{ product.category }}
+                        </span>
+                        {% endif %}
+                        <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ product.name }}</h1>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="mb-6">
+                        <div class="flex items-baseline">
+                            <span class="text-5xl font-bold text-green-600">Rs {{ product.price }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Stock Status -->
+                    <div class="mb-6">
+                        {% if product.stock > 0 %}
+                            {% if product.stock <= 5 %}
+                            <div class="flex items-center text-orange-600">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="font-semibold">Only {{ product.stock }} left in stock!</span>
+                            </div>
+                            {% else %}
+                            <div class="flex items-center text-green-600">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="font-semibold">In Stock ({{ product.stock }} available)</span>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                        <div class="flex items-center text-red-600">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                            </svg>
+                            <span class="font-semibold">Out of Stock</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">Description</h3>
+                        <p class="text-gray-700 leading-relaxed">{{ product.description }}</p>
+                    </div>
+
+                    <!-- Supplier Info -->
+                    {% if product.supplier %}
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <p class="text-sm text-gray-600">
+                            <span class="font-semibold">Supplied by:</span> {{ product.supplier }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Order Form -->
+                {% if product.stock > 0 %}
+                <div class="border-t pt-6 mt-6">
+                    <form method="post" action="/products/{{ product.id }}/order/" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        
+                        <div>
+                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
+                            <div class="flex items-center space-x-4">
+                                <input type="number" 
+                                       id="quantity"
+                                       name="quantity" 
+                                       value="1" 
+                                       min="1" 
+                                       max="{{ product.stock }}" 
+                                       class="border-2 border-gray-300 rounded-lg p-3 w-24 text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <span class="text-gray-600">of {{ product.stock }} available</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            Add to Cart & Place Order
+                        </button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="border-t pt-6 mt-6">
+                    <button disabled class="w-full bg-gray-300 text-gray-500 font-bold py-4 px-6 rounded-lg cursor-not-allowed">
+                        Out of Stock
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Information Section -->
+    <div class="mt-8 bg-white rounded-lg shadow-lg p-8">
+        <h3 class="text-2xl font-bold text-gray-900 mb-4">Product Details</h3>
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="space-y-3">
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-semibold text-gray-700">Product ID:</span>
+                    <span class="text-gray-600">#{{ product.id }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-semibold text-gray-700">Category:</span>
+                    <span class="text-gray-600">{{ product.category|default:"Uncategorized" }}</span>
+                </div>
+            </div>
+            <div class="space-y-3">
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-semibold text-gray-700">Price:</span>
+                    <span class="text-gray-600">Rs {{ product.price }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="font-semibold text-gray-700">Availability:</span>
+                    <span class="text-gray-600">{{ product.stock }} units</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
