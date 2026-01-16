@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Delivery Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="mb-4">Delivery Dashboard - Track Deliveries</h1>
+    
+    <!-- Delivery Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Deliveries</h5>
+                    <h2>{{ total_deliveries }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Assigned</h5>
+                    <h2>{{ assigned_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">In Progress</h5>
+                    <h2>{{ picked_count|add:on_way_count }}</h2>
+                    <small>Picked: {{ picked_count }}, On Way: {{ on_way_count }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Delivered</h5>
+                    <h2>{{ delivered_count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Deliveries -->
+    {% if pending_deliveries %}
+    <div class="card mb-4">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">Pending Deliveries</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Delivery ID</th>
+                        <th>Order ID</th>
+                        <th>Status</th>
+                        <th>Assigned Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for delivery in pending_deliveries %}
+                    <tr>
+                        <td>#{{ delivery.id }}</td>
+                        <td>#{{ delivery.order }}</td>
+                        <td>
+                            {% if delivery.status == 'assigned' %}
+                            <span class="badge bg-info">Assigned</span>
+                            {% elif delivery.status == 'picked' %}
+                            <span class="badge bg-primary">Picked</span>
+                            {% elif delivery.status == 'on_way' %}
+                            <span class="badge bg-warning">On the Way</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ delivery.assigned_at|slice:":10" }}</td>
+                        <td>
+                            {% if delivery.status == 'assigned' %}
+                            <button class="btn btn-sm btn-primary">Mark as Picked</button>
+                            {% elif delivery.status == 'picked' %}
+                            <button class="btn btn-sm btn-warning">Mark On Way</button>
+                            {% elif delivery.status == 'on_way' %}
+                            <button class="btn btn-sm btn-success">Mark Delivered</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info mb-4" role="alert">
+        <h5>No Pending Deliveries</h5>
+        <p>You have no pending deliveries at the moment.</p>
+    </div>
+    {% endif %}
+
+    <!-- All Deliveries -->
+    <div class="card">
+        <div class="card-header">
+            <h5>All Deliveries</h5>
+        </div>
+        <div class="card-body">
+            {% if deliveries %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Delivery ID</th>
+                            <th>Order ID</th>
+                            <th>Status</th>
+                            <th>Assigned Date</th>
+                            <th>Timeline</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for delivery in deliveries %}
+                        <tr>
+                            <td>#{{ delivery.id }}</td>
+                            <td>#{{ delivery.order }}</td>
+                            <td>
+                                {% if delivery.status == 'assigned' %}
+                                <span class="badge bg-info">Assigned</span>
+                                {% elif delivery.status == 'picked' %}
+                                <span class="badge bg-primary">Picked</span>
+                                {% elif delivery.status == 'on_way' %}
+                                <span class="badge bg-warning">On the Way</span>
+                                {% elif delivery.status == 'delivered' %}
+                                <span class="badge bg-success">Delivered</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ delivery.assigned_at|slice:":10" }}</td>
+                            <td>
+                                <div class="progress" style="height: 20px;">
+                                    {% if delivery.status == 'assigned' %}
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 25%">25%</div>
+                                    {% elif delivery.status == 'picked' %}
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 50%">50%</div>
+                                    {% elif delivery.status == 'on_way' %}
+                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 75%">75%</div>
+                                    {% elif delivery.status == 'delivered' %}
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%">100%</div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p>No deliveries assigned yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

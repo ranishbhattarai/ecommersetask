@@ -12,9 +12,15 @@ from django.core.mail import send_mail
 # Create your views here.
 class OrderViewSet(ModelViewSet):
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated, IsCustomer]
+    permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['status','customer']
+    
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsAuthenticated(), IsCustomer()]
+        return [IsAuthenticated()]
+    
     def get_queryset(self):
         user=self.request.user
         if user.role=='admin':

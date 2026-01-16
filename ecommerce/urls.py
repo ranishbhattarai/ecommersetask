@@ -21,7 +21,9 @@ from rest_framework.routers import DefaultRouter
 from products.views import ProductViewSet, CategoryViewSet
 from orders.views import OrderViewSet
 from delivery.views import DeliveryAssignmentViewSet
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
+from users.views import RegisterView, UserProfileView
+from users.serializers import CustomTokenObtainPairView
 
 router=DefaultRouter()
 router.register(r'products',ProductViewSet,basename='product')
@@ -34,7 +36,9 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/token/',TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/',CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/',TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/register/', RegisterView.as_view(), name='register'),
+    path('api/user-profile/', UserProfileView.as_view(), name='user_profile'),
 
     ] 

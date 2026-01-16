@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Session Debug{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3>Session Debug Information</h3>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td><strong>Role</strong></td>
+                    <td><code>{{ role }}</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Username</strong></td>
+                    <td><code>{{ username }}</code></td>
+                </tr>
+                <tr>
+                    <td><strong>Access Token</strong></td>
+                    <td><code>{{ access }}</code></td>
+                </tr>
+            </table>
+
+            <h5 class="mt-4">Full Session Data:</h5>
+            <pre><code>{{ session_data }}</code></pre>
+
+            <hr>
+            
+            <div class="alert alert-info">
+                <strong>Current User Role:</strong> <code>{{ role }}</code>
+            </div>
+
+            {% if role == 'admin' %}
+            <div class="alert alert-success">
+                ✓ Role is correctly set to 'admin'
+                <a href="/dashboard/admin/" class="btn btn-sm btn-primary ms-2">Go to Admin Dashboard</a>
+            </div>
+            {% else %}
+            <div class="alert alert-warning">
+                ✗ Role is not set to 'admin'. Current role: <code>{{ role }}</code>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
