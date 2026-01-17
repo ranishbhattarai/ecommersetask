@@ -3,164 +3,194 @@
 {% block title %}Admin Dashboard{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">Admin Dashboard</h1>
-    
-    <!-- Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Products</h5>
-                    <h2>{{ products_count }}</h2>
-                </div>
+<div class="max-w-6xl mx-auto px-4 py-10 space-y-8">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Admin Control Center</h1>
+            <p class="text-gray-600 mt-1">Monitor performance, route deliveries, and keep operations moving.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/admin/" class="px-4 py-2 rounded-lg bg-gray-900 text-white shadow-sm hover:shadow-md transition">Django Admin</a>
+            <a href="/" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-800 hover:border-purple-400 hover:text-purple-700 transition">Storefront</a>
+        </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-purple-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl">📦</div>
+            <div>
+                <p class="text-sm text-gray-500">Total Products</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ products_count }}</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Orders</h5>
-                    <h2>{{ orders_count }}</h2>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl">🧾</div>
+            <div>
+                <p class="text-sm text-gray-500">Total Orders</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ orders_count }}</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Deliveries</h5>
-                    <h2>{{ deliveries_count }}</h2>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">🚚</div>
+            <div>
+                <p class="text-sm text-gray-500">Total Deliveries</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ deliveries_count }}</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Notifications</h5>
-                    <h2>{{ total_notifications|default:0 }}</h2>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-amber-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl">🔔</div>
+            <div>
+                <p class="text-sm text-gray-500">Notifications</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ total_notifications|default:0 }}</p>
             </div>
         </div>
     </div>
 
-    <!-- Unassigned Orders (Need Delivery Assignment) -->
     {% if unassigned_orders %}
-    <div class="card mb-4">
-        <div class="card-header bg-warning">
-            <h5 class="mb-0 text-dark">Orders Awaiting Delivery Assignment</h5>
-        </div>
-        <div class="card-body">
-            <div class="alert alert-info" role="alert">
-                <strong>Note:</strong> To assign deliveries, please use the <a href="/admin/" class="alert-link">Django Admin Panel</a>.
-                Delivery personnel must be registered in the system first.
+    <div class="bg-white rounded-2xl shadow-sm border border-amber-200 overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-amber-100 to-yellow-50">
+            <div>
+                <p class="text-xs uppercase tracking-wide text-amber-700 font-semibold">Action needed</p>
+                <h3 class="text-lg font-semibold text-gray-900">Orders awaiting delivery assignment</h3>
             </div>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Total Amount</th>
-                        <th>Status</th>
-                        <th>Order Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in unassigned_orders %}
-                    <tr>
-                        <td>#{{ order.id }}</td>
-                        <td>{{ order.customer_name|default:order.customer }}</td>
-                        <td>Rs {{ order.total_amount }}</td>
-                        <td><span class="badge bg-{{ order.status|lower }}">{{ order.status }}</span></td>
-                        <td>{{ order.created_at|slice:":10" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <p class="text-muted mt-2"><small>Go to <a href="/admin/delivery/deliveryassignment/add/">Admin Panel → Delivery Assignments</a> to assign delivery persons.</small></p>
+            <span class="px-3 py-1 bg-white border border-amber-200 rounded-full text-amber-700 text-sm font-medium">{{ unassigned_orders|length }} open</span>
+        </div>
+        <div class="px-6 py-4 space-y-3">
+            <div class="flex items-start gap-3 p-3 bg-amber-50 border border-amber-100 rounded-xl">
+                <span class="text-amber-600 text-lg">⚡</span>
+                <p class="text-sm text-amber-800">Assign deliveries directly by selecting a delivery person or entering their username.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-left text-sm">
+                    <thead>
+                        <tr class="text-gray-500 border-b">
+                            <th class="py-3 pr-4 font-semibold">Order</th>
+                            <th class="py-3 pr-4 font-semibold">Customer</th>
+                            <th class="py-3 pr-4 font-semibold">Total</th>
+                            <th class="py-3 pr-4 font-semibold">Status</th>
+                            <th class="py-3 pr-4 font-semibold">Date</th>
+                            <th class="py-3 pr-4 font-semibold">Assign delivery</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y">
+                        {% for order in unassigned_orders %}
+                        <tr class="hover:bg-amber-50/60">
+                            <td class="py-3 pr-4 font-semibold text-gray-900">#{{ order.id }}</td>
+                            <td class="py-3 pr-4 text-gray-700">{{ order.customer_name|default:order.customer }}</td>
+                            <td class="py-3 pr-4 text-gray-800">Rs {{ order.total_amount }}</td>
+                            <td class="py-3 pr-4">
+                                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">{{ order.status }}</span>
+                            </td>
+                            <td class="py-3 pr-4 text-gray-600">{{ order.created_at|slice:":10" }}</td>
+                            <td class="py-3 pr-4">
+                                <form method="post" action="/dashboard/admin/assign/{{ order.id }}/" class="flex flex-col sm:flex-row gap-2 sm:items-center">
+                                    {% csrf_token %}
+                                    {% if delivery_persons %}
+                                    <select name="delivery_person_username" class="w-full sm:w-auto border-gray-200 rounded-lg focus:ring-2 focus:ring-amber-400 focus:border-transparent text-sm" required>
+                                        <option value="">Select delivery person</option>
+                                        {% for person in delivery_persons %}
+                                        <option value="{{ person.username }}">{{ person.username }} ({{ person.email }})</option>
+                                        {% endfor %}
+                                    </select>
+                                    {% else %}
+                                    <input type="text" name="delivery_person_username" class="w-full sm:w-52 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent" placeholder="Delivery username" required>
+                                    {% endif %}
+                                    <button class="inline-flex items-center justify-center px-3 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 shadow-sm" type="submit">Assign</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-xs text-gray-500">Delivery personnel must exist as users with the delivery role.</p>
         </div>
     </div>
     {% endif %}
 
-    <!-- Recent Orders -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Recent Orders</h5>
-                </div>
-                <div class="card-body">
-                    {% if orders %}
-                    <table class="table table-striped">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">Recent Orders</h3>
+                <span class="text-sm text-gray-500">{{ orders|length|default:0 }} total</span>
+            </div>
+            <div class="px-6 py-4">
+                {% if orders %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left text-sm">
                         <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Status</th>
-                                <th>Amount</th>
-                                <th>Date</th>
+                            <tr class="text-gray-500 border-b">
+                                <th class="py-3 pr-4 font-semibold">Order</th>
+                                <th class="py-3 pr-4 font-semibold">Status</th>
+                                <th class="py-3 pr-4 font-semibold">Amount</th>
+                                <th class="py-3 pr-4 font-semibold">Date</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y">
                             {% for order in orders %}
-                            <tr>
-                                <td>#{{ order.id }}</td>
-                                <td><span class="badge bg-info">{{ order.status }}</span></td>
-                                <td>${{ order.total_amount }}</td>
-                                <td>{{ order.created_at|slice:":10" }}</td>
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-3 pr-4 font-semibold text-gray-900">#{{ order.id }}</td>
+                                <td class="py-3 pr-4">
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">{{ order.status }}</span>
+                                </td>
+                                <td class="py-3 pr-4 text-gray-800">Rs {{ order.total_amount }}</td>
+                                <td class="py-3 pr-4 text-gray-600">{{ order.created_at|slice:":10" }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-                    {% else %}
-                    <p>No orders yet.</p>
-                    {% endif %}
                 </div>
+                {% else %}
+                <p class="text-sm text-gray-600">No orders yet.</p>
+                {% endif %}
             </div>
         </div>
 
-        <!-- Recent Deliveries -->
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Recent Deliveries</h5>
-                </div>
-                <div class="card-body">
-                    {% if deliveries %}
-                    <table class="table table-striped">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="flex items-center justify-between px-6 py-4 border-b">
+                <h3 class="text-lg font-semibold text-gray-900">Recent Deliveries</h3>
+                <span class="text-sm text-gray-500">{{ deliveries|length|default:0 }} total</span>
+            </div>
+            <div class="px-6 py-4">
+                {% if deliveries %}
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-left text-sm">
                         <thead>
-                            <tr>
-                                <th>Delivery ID</th>
-                                <th>Order ID</th>
-                                <th>Status</th>
-                                <th>Assigned</th>
+                            <tr class="text-gray-500 border-b">
+                                <th class="py-3 pr-4 font-semibold">Delivery</th>
+                                <th class="py-3 pr-4 font-semibold">Order</th>
+                                <th class="py-3 pr-4 font-semibold">Status</th>
+                                <th class="py-3 pr-4 font-semibold">Assigned</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y">
                             {% for delivery in deliveries %}
-                            <tr>
-                                <td>#{{ delivery.id }}</td>
-                                <td>#{{ delivery.order }}</td>
-                                <td><span class="badge bg-primary">{{ delivery.status }}</span></td>
-                                <td>{{ delivery.assigned_at|slice:":10" }}</td>
+                            <tr class="hover:bg-gray-50">
+                                <td class="py-3 pr-4 font-semibold text-gray-900">#{{ delivery.id }}</td>
+                                <td class="py-3 pr-4 text-gray-800">#{{ delivery.order }}</td>
+                                <td class="py-3 pr-4">
+                                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">{{ delivery.status }}</span>
+                                </td>
+                                <td class="py-3 pr-4 text-gray-600">{{ delivery.assigned_at|slice:":10" }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-                    {% else %}
-                    <p>No deliveries yet.</p>
-                    {% endif %}
                 </div>
+                {% else %}
+                <p class="text-sm text-gray-600">No deliveries yet.</p>
+                {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="card">
-        <div class="card-header">
-            <h5>Quick Actions</h5>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-wrap gap-3">
+        <div class="flex items-center gap-2 text-gray-700">
+            <span class="w-2 h-2 bg-purple-500 rounded-full"></span>
+            <p class="text-sm">Quick actions</p>
         </div>
-        <div class="card-body">
-            <a href="/" class="btn btn-primary me-2">View All Products</a>
-            <a href="/orders/" class="btn btn-success me-2">View All Orders</a>
-            <a href="/admin/" class="btn btn-secondary">Admin Panel</a>
+        <div class="flex flex-wrap gap-3">
+            <a href="/" class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-sm hover:shadow-md transition">View Products</a>
+            <a href="/orders/" class="px-4 py-2 rounded-lg border border-gray-200 text-gray-800 hover:border-blue-400 hover:text-blue-700 transition">View Orders</a>
         </div>
     </div>
 </div>

@@ -3,96 +3,92 @@
 {% block title %}Delivery Dashboard{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">Delivery Dashboard - Track Deliveries</h1>
+<div class="max-w-6xl mx-auto px-4 py-10 space-y-8">
+    <h1 class="text-3xl font-bold text-gray-900">Delivery Dashboard - Track Deliveries</h1>
     
     <!-- Delivery Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Deliveries</h5>
-                    <h2>{{ total_deliveries }}</h2>
-                </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl">📦</div>
+            <div>
+                <p class="text-sm text-gray-500">Total Deliveries</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ total_deliveries }}</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Assigned</h5>
-                    <h2>{{ assigned_count }}</h2>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-purple-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-xl">✓</div>
+            <div>
+                <p class="text-sm text-gray-500">Assigned</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ assigned_count }}</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">In Progress</h5>
-                    <h2>{{ picked_count|add:on_way_count }}</h2>
-                    <small>Picked: {{ picked_count }}, On Way: {{ on_way_count }}</small>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-amber-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl">🚚</div>
+            <div>
+                <p class="text-sm text-gray-500">In Progress</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ picked_count|add:on_way_count }}</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Delivered</h5>
-                    <h2>{{ delivered_count }}</h2>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">✅</div>
+            <div>
+                <p class="text-sm text-gray-500">Delivered</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ delivered_count }}</p>
             </div>
         </div>
     </div>
 
     <!-- Pending Deliveries -->
     {% if pending_deliveries %}
-    <div class="card mb-4">
-        <div class="card-header bg-warning">
-            <h5 class="mb-0">Pending Deliveries</h5>
+    <div class="bg-white rounded-2xl shadow-sm border border-amber-200 overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-amber-100 to-yellow-50">
+            <h3 class="text-lg font-semibold text-gray-900">Pending Deliveries</h3>
+            <span class="px-3 py-1 bg-white border border-amber-200 rounded-full text-amber-700 text-sm font-medium">{{ pending_deliveries|length }} active</span>
         </div>
-        <div class="card-body">
-            <table class="table table-striped">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
                 <thead>
-                    <tr>
-                        <th>Delivery ID</th>
-                        <th>Order ID</th>
-                        <th>Status</th>
-                        <th>Assigned Date</th>
-                        <th>Action</th>
+                    <tr class="text-gray-500 border-b">
+                        <th class="py-3 px-4 font-semibold">Delivery ID</th>
+                        <th class="py-3 px-4 font-semibold">Order ID</th>
+                        <th class="py-3 px-4 font-semibold">Status</th>
+                        <th class="py-3 px-4 font-semibold">Assigned Date</th>
+                        <th class="py-3 px-4 font-semibold">Action</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y">
                     {% for delivery in pending_deliveries %}
-                    <tr>
-                        <td>#{{ delivery.id }}</td>
-                        <td>#{{ delivery.order }}</td>
-                        <td>
+                    <tr class="hover:bg-amber-50/60">
+                        <td class="py-3 px-4 font-semibold text-gray-900">#{{ delivery.id }}</td>
+                        <td class="py-3 px-4 text-gray-700">#{{ delivery.order }}</td>
+                        <td class="py-3 px-4">
                             {% if delivery.status == 'assigned' %}
-                            <span class="badge bg-info">Assigned</span>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Assigned</span>
                             {% elif delivery.status == 'picked' %}
-                            <span class="badge bg-primary">Picked</span>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">Picked</span>
                             {% elif delivery.status == 'on_way' %}
-                            <span class="badge bg-warning">On the Way</span>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">On Way</span>
                             {% endif %}
                         </td>
-                        <td>{{ delivery.assigned_at|slice:":10" }}</td>
-                        <td>
+                        <td class="py-3 px-4 text-gray-600">{{ delivery.assigned_at|slice:":10" }}</td>
+                        <td class="py-3 px-4">
                             {% if delivery.status == 'assigned' %}
-                            <form method="post" action="/dashboard/delivery/{{ delivery.id }}/update/" style="display: inline;">
+                            <form method="post" action="/dashboard/delivery/{{ delivery.id }}/update/" class="inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="status" value="picked">
-                                <button type="submit" class="btn btn-sm btn-primary">Mark as Picked</button>
+                                <button type="submit" class="px-3 py-2 rounded-lg bg-purple-500 text-white text-xs font-semibold hover:bg-purple-600 shadow-sm">Picked</button>
                             </form>
                             {% elif delivery.status == 'picked' %}
-                            <form method="post" action="/dashboard/delivery/{{ delivery.id }}/update/" style="display: inline;">
+                            <form method="post" action="/dashboard/delivery/{{ delivery.id }}/update/" class="inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="status" value="on_way">
-                                <button type="submit" class="btn btn-sm btn-warning">Mark On Way</button>
+                                <button type="submit" class="px-3 py-2 rounded-lg bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600 shadow-sm">On Way</button>
                             </form>
                             {% elif delivery.status == 'on_way' %}
-                            <form method="post" action="/dashboard/delivery/{{ delivery.id }}/update/" style="display: inline;">
+                            <form method="post" action="/dashboard/delivery/{{ delivery.id }}/update/" class="inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="status" value="delivered">
-                                <button type="submit" class="btn btn-sm btn-success">Mark Delivered</button>
+                                <button type="submit" class="px-3 py-2 rounded-lg bg-emerald-500 text-white text-xs font-semibold hover:bg-emerald-600 shadow-sm">Delivered</button>
                             </form>
                             {% endif %}
                         </td>
@@ -102,68 +98,63 @@
             </table>
         </div>
     </div>
-    {% else %}
-    <div class="alert alert-info mb-4" role="alert">
-        <h5>No Pending Deliveries</h5>
-        <p>You have no pending deliveries at the moment.</p>
-    </div>
     {% endif %}
 
     <!-- All Deliveries -->
-    <div class="card">
-        <div class="card-header">
-            <h5>All Deliveries</h5>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b bg-gray-50">
+            <h3 class="text-lg font-semibold text-gray-900">All Deliveries</h3>
         </div>
-        <div class="card-body">
+        <div class="overflow-x-auto">
             {% if deliveries %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Delivery ID</th>
-                            <th>Order ID</th>
-                            <th>Status</th>
-                            <th>Assigned Date</th>
-                            <th>Timeline</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for delivery in deliveries %}
-                        <tr>
-                            <td>#{{ delivery.id }}</td>
-                            <td>#{{ delivery.order }}</td>
-                            <td>
+            <table class="min-w-full text-left text-sm">
+                <thead>
+                    <tr class="text-gray-500 border-b">
+                        <th class="py-3 px-4 font-semibold">Delivery ID</th>
+                        <th class="py-3 px-4 font-semibold">Order ID</th>
+                        <th class="py-3 px-4 font-semibold">Status</th>
+                        <th class="py-3 px-4 font-semibold">Assigned Date</th>
+                        <th class="py-3 px-4 font-semibold">Progress</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    {% for delivery in deliveries %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4 font-semibold text-gray-900">#{{ delivery.id }}</td>
+                        <td class="py-3 px-4 text-gray-700">#{{ delivery.order }}</td>
+                        <td class="py-3 px-4">
+                            {% if delivery.status == 'assigned' %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700">Assigned</span>
+                            {% elif delivery.status == 'picked' %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700">Picked</span>
+                            {% elif delivery.status == 'on_way' %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">On Way</span>
+                            {% elif delivery.status == 'delivered' %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">Delivered</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-gray-600">{{ delivery.assigned_at|slice:":10" }}</td>
+                        <td class="py-3 px-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
                                 {% if delivery.status == 'assigned' %}
-                                <span class="badge bg-info">Assigned</span>
+                                <div class="bg-blue-500 h-2 rounded-full" style="width: 25%"></div>
                                 {% elif delivery.status == 'picked' %}
-                                <span class="badge bg-primary">Picked</span>
+                                <div class="bg-purple-500 h-2 rounded-full" style="width: 50%"></div>
                                 {% elif delivery.status == 'on_way' %}
-                                <span class="badge bg-warning">On the Way</span>
+                                <div class="bg-amber-500 h-2 rounded-full" style="width: 75%"></div>
                                 {% elif delivery.status == 'delivered' %}
-                                <span class="badge bg-success">Delivered</span>
+                                <div class="bg-emerald-500 h-2 rounded-full" style="width: 100%"></div>
                                 {% endif %}
-                            </td>
-                            <td>{{ delivery.assigned_at|slice:":10" }}</td>
-                            <td>
-                                <div class="progress" style="height: 20px;">
-                                    {% if delivery.status == 'assigned' %}
-                                    <div class="progress-bar bg-info" role="progressbar" style="width: 25%">25%</div>
-                                    {% elif delivery.status == 'picked' %}
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 50%">50%</div>
-                                    {% elif delivery.status == 'on_way' %}
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 75%">75%</div>
-                                    {% elif delivery.status == 'delivered' %}
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%">100%</div>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             {% else %}
-            <p>No deliveries assigned yet.</p>
+            <div class="p-6 text-center">
+                <p class="text-gray-600">No deliveries assigned yet.</p>
+            </div>
             {% endif %}
         </div>
     </div>

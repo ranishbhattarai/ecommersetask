@@ -1,9 +1,7 @@
 from django.shortcuts import render, redirect
 import requests
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 
-
-# Create your views here.
 API_URL="http://127.0.0.1:8000/api/"
 
 
@@ -12,15 +10,11 @@ def login_view(request):
         username=request.POST.get('username', '')
         password=request.POST.get('password', '')
         
-        print(f"DEBUG: Login attempt - username: {username}, password: {password}")
-        
         if not username or not password:
             return render(request,'login.html',{'error': 'Username and password are required'})
         
         try:
             res=requests.post(f"{API_URL}token/",data={'username':username,'password':password})
-            print(f"DEBUG: API Response Status: {res.status_code}")
-            print(f"DEBUG: API Response: {res.text}")
             
             if res.status_code==200:
                 token=res.json()
@@ -30,37 +24,25 @@ def login_view(request):
                 
                 # Try to get user role from the API
                 headers = {'Authorization': f'Bearer {token["access"]}'}
-                print(f"DEBUG: Headers being used: {headers}")
                 try:
                     user_res = requests.get(f"{API_URL}user-profile/", headers=headers)
-                    print(f"DEBUG: User profile response status: {user_res.status_code}")
-                    print(f"DEBUG: User profile response text: {user_res.text}")
                     if user_res.status_code == 200:
                         user_data = user_res.json()
-                        print(f"DEBUG: User profile data: {user_data}")
                         role = user_data.get('role', 'customer')
                         request.session['role'] = role
-                        print(f"DEBUG: User role from API: {role}")
                     else:
-                        print(f"DEBUG: User profile API returned error status {user_res.status_code}")
                         request.session['role'] = 'customer'  # default
                 except Exception as e:
-                    print(f"DEBUG: Could not fetch user profile: {e}")
-                    import traceback
-                    traceback.print_exc()
                     request.session['role'] = 'customer'  # default
                 
                 # Save session explicitly
                 request.session.modified = True
-                print(f"DEBUG: Session saved with role: {request.session.get('role')}")
-                print(f"DEBUG: Login successful, redirecting to /")
                 return redirect('/')
             else:
                 error_message = res.json().get('detail', 'Invalid credentials')
                 return render(request,'login.html',{'error':error_message})
         except Exception as e:
             error_message = f'Login failed: {str(e)}'
-            print(f"DEBUG: Exception: {error_message}")
             return render(request,'login.html',{'error':error_message})
         
     return render(request,'login.html')
@@ -117,13 +99,16 @@ def debug_session(request):
         'access': 'Present' if request.session.get('access') else 'Not Present',
     })
 
-
-
 def product_list(request):
+    role_block = block_non_customer(request)
+    if role_block:
+        return role_block
+
     headers=get_auth_headers(request)
     if not headers:
         return redirect('/login/')
     
+    # Fetch list (supports paginated or plain list responses)
     res=requests.get(f"{API_URL}products/", headers=headers)
     
     # If unauthorized, try to refresh token
@@ -148,10 +133,15 @@ def product_list(request):
         return redirect('/login/')
 
 def product_detail(request,product_id):
+    role_block = block_non_customer_from_ordering(request)
+    if role_block:
+        return role_block
+
     headers=get_auth_headers(request)
     if not headers:
         return redirect('/login/')
     
+    # Fetch a single product detail
     res=requests.get(f"{API_URL}products/{product_id}/", headers=headers)
     
     # If unauthorized, try to refresh token
@@ -174,6 +164,10 @@ def product_detail(request,product_id):
         return redirect('/login/')
 
 def place_order(request, product_id):
+    role_block = block_non_customer_from_ordering(request)
+    if role_block:
+        return role_block
+
     if request.method != 'POST':
         return redirect(f'/products/{product_id}/')
     
@@ -263,7 +257,7 @@ def get_auth_headers(request):
     refresh=request.session.get('refresh')
     if not access and not refresh:
         return {}
-    #try access token first
+    # Try access token first; fall back to refresh token once
     if not access and refresh:
         refresh_response=requests.post(f"{API_URL}token/refresh/",data={'refresh':refresh})
         if refresh_response.status_code==200:
@@ -276,9 +270,32 @@ def get_auth_headers(request):
 
 def get_user_role(request):
     """Get the user's role from session"""
-    role = request.session.get('role')
-    print(f"DEBUG: get_user_role - role from session: {role}")
-    return role
+    return request.session.get('role')
+
+def block_non_customer(request):
+    """Disallow delivery roles from customer pages. Admins, suppliers, and customers have full access."""
+    role = get_user_role(request)
+    if not role:
+        return redirect('/login/')
+    # Allow admin, supplier, and customer access, block only delivery
+    if role in ['delivery', 'delivery_person']:
+        # Send delivery roles back to their dashboard
+        return redirect('/dashboard/delivery/')
+    return None
+
+def block_non_customer_from_ordering(request):
+    """Block everyone except customers from placing orders. Only customers can order."""
+    role = get_user_role(request)
+    if not role:
+        return redirect('/login/')
+    # Only allow customers to place orders
+    if role in ['admin', 'supplier', 'delivery', 'delivery_person']:
+        if role == 'admin':
+            return redirect('/dashboard/admin/')
+        if role == 'supplier':
+            return redirect('/dashboard/supplier/')
+        return redirect('/dashboard/delivery/')
+    return None
 
 def admin_dashboard(request):
     headers = get_auth_headers(request)
@@ -287,7 +304,6 @@ def admin_dashboard(request):
     
     # Check if user is admin
     user_role = get_user_role(request)
-    print(f"DEBUG: admin_dashboard - user_role: {user_role}")
     
     if not user_role:
         return redirect('/login/')
@@ -298,7 +314,7 @@ def admin_dashboard(request):
             'message': 'You do not have permission to access the admin dashboard. Only administrators can access this page.'
         })
     
-    # Get products count
+    # Get products count (handles paginated or list responses)
     products_res = requests.get(f"{API_URL}products/", headers=headers)
     if products_res.status_code == 200:
         products_data = products_res.json()
@@ -310,7 +326,7 @@ def admin_dashboard(request):
     else:
         products_count = 0
     
-    # Get orders count
+    # Get orders count (handles paginated or list responses)
     orders_res = requests.get(f"{API_URL}orders/", headers=headers)
     if orders_res.status_code == 200:
         orders_data = orders_res.json()
@@ -325,7 +341,7 @@ def admin_dashboard(request):
         orders = []
         orders_count = 0
     
-    # Get deliveries count
+    # Get deliveries count (handles paginated or list responses)
     deliveries_res = requests.get(f"{API_URL}deliveries/", headers=headers)
     if deliveries_res.status_code == 200:
         deliveries_data = deliveries_res.json()
@@ -340,10 +356,13 @@ def admin_dashboard(request):
         deliveries = []
         deliveries_count = 0
     
-    # Get delivery persons for assignment
-    users_res = requests.get(f"{API_URL}user-profile/", headers=headers)
-    delivery_persons = []
-    # Note: We'd need an endpoint to get all users, for now we'll handle it differently
+    # Get delivery persons for assignment from the local DB
+    User = get_user_model()
+    delivery_persons = list(
+        User.objects.filter(role__in=['delivery', 'delivery_person'])
+        .order_by('username')
+        .values('id', 'username', 'email')
+    )
     
     # Find orders that don't have delivery assignments
     assigned_order_ids = [d.get('order') for d in deliveries if d.get('order')]
@@ -356,6 +375,7 @@ def admin_dashboard(request):
         'orders': orders[:5],  # Show last 5 orders
         'deliveries': deliveries[:5],  # Show last 5 deliveries
         'unassigned_orders': unassigned_orders[:10],  # Show unassigned orders
+        'delivery_persons': delivery_persons,
     }
     return render(request, 'admin_dashboard.html', context)
 
@@ -373,14 +393,21 @@ def assign_delivery(request, order_id):
     if user_role != 'admin':
         return redirect('/dashboard/admin/')
     
-    delivery_person_id = request.POST.get('delivery_person_id')
-    if not delivery_person_id:
+    delivery_person_username = request.POST.get('delivery_person_username')
+    if not delivery_person_username:
+        return redirect('/dashboard/admin/')
+
+    # Resolve username to user ID
+    User = get_user_model()
+    try:
+        delivery_user = User.objects.get(username=delivery_person_username, role__in=['delivery', 'delivery_person'])
+    except User.DoesNotExist:
         return redirect('/dashboard/admin/')
     
     # Create delivery assignment via API
     data = {
         'order': order_id,
-        'delivery_person': delivery_person_id,
+        'delivery_person': delivery_user.id,
         'status': 'assigned'
     }
     
@@ -393,67 +420,6 @@ def assign_delivery(request, order_id):
             res = requests.post(f"{API_URL}deliveries/", json=data, headers=headers)
     
     return redirect('/dashboard/admin/')
-    
-    # Get products count
-    products_res = requests.get(f"{API_URL}products/", headers=headers)
-    if products_res.status_code == 200:
-        products_data = products_res.json()
-        # Handle paginated response
-        if isinstance(products_data, dict) and 'results' in products_data:
-            products_count = products_data.get('count', len(products_data['results']))
-        else:
-            products_count = len(products_data) if isinstance(products_data, list) else 0
-    else:
-        products_count = 0
-    
-    # Get orders count
-    orders_res = requests.get(f"{API_URL}orders/", headers=headers)
-    if orders_res.status_code == 200:
-        orders_data = orders_res.json()
-        # Handle paginated response
-        if isinstance(orders_data, dict) and 'results' in orders_data:
-            orders = orders_data['results']
-            orders_count = orders_data.get('count', len(orders))
-        else:
-            orders = orders_data if isinstance(orders_data, list) else []
-            orders_count = len(orders)
-    else:
-        orders = []
-        orders_count = 0
-    
-    # Get deliveries count
-    deliveries_res = requests.get(f"{API_URL}deliveries/", headers=headers)
-    if deliveries_res.status_code == 200:
-        deliveries_data = deliveries_res.json()
-        # Handle paginated response
-        if isinstance(deliveries_data, dict) and 'results' in deliveries_data:
-            deliveries = deliveries_data['results']
-            deliveries_count = deliveries_data.get('count', len(deliveries))
-        else:
-            deliveries = deliveries_data if isinstance(deliveries_data, list) else []
-            deliveries_count = len(deliveries)
-    else:
-        deliveries = []
-        deliveries_count = 0
-    
-    # Get delivery persons for assignment
-    users_res = requests.get(f"{API_URL}user-profile/", headers=headers)
-    delivery_persons = []
-    # Note: We'd need an endpoint to get all users, for now we'll handle it differently
-    
-    # Find orders that don't have delivery assignments
-    assigned_order_ids = [d.get('order') for d in deliveries if d.get('order')]
-    unassigned_orders = [o for o in orders if o.get('id') not in assigned_order_ids and o.get('status') in ['PENDING', 'PAID']]
-    
-    context = {
-        'products_count': products_count,
-        'orders_count': orders_count,
-        'deliveries_count': deliveries_count,
-        'orders': orders[:5],  # Show last 5 orders
-        'deliveries': deliveries[:5],  # Show last 5 deliveries
-        'unassigned_orders': unassigned_orders[:10],  # Show unassigned orders
-    }
-    return render(request, 'admin_dashboard.html', context)
 
 def supplier_dashboard(request):
     headers = get_auth_headers(request)
@@ -462,7 +428,6 @@ def supplier_dashboard(request):
     
     # Check if user is supplier
     user_role = get_user_role(request)
-    print(f"DEBUG: supplier_dashboard - user_role: {user_role}")
     
     if not user_role:
         return redirect('/login/')
@@ -473,7 +438,7 @@ def supplier_dashboard(request):
             'message': 'You do not have permission to access the supplier dashboard. Only suppliers can access this page.'
         })
     
-    # Get supplier's products
+    # Get supplier's products (paginated or list)
     products_res = requests.get(f"{API_URL}products/", headers=headers)
     if products_res.status_code == 200:
         products_data = products_res.json()
@@ -506,7 +471,6 @@ def delivery_dashboard(request):
     
     # Check if user is delivery person
     user_role = get_user_role(request)
-    print(f"DEBUG: delivery_dashboard - user_role: {user_role}")
     
     if not user_role:
         return redirect('/login/')
@@ -517,7 +481,7 @@ def delivery_dashboard(request):
             'message': 'You do not have permission to access the delivery dashboard. Only delivery personnel can access this page.'
         })
     
-    # Get delivery person's assignments
+    # Get delivery person's assignments (paginated or list)
     deliveries_res = requests.get(f"{API_URL}deliveries/", headers=headers)
     if deliveries_res.status_code == 200:
         deliveries_data = deliveries_res.json()
@@ -529,7 +493,7 @@ def delivery_dashboard(request):
     else:
         deliveries = []
     
-    # Group by status
+    # Group by status buckets for quick summary
     assigned = [d for d in deliveries if d.get('status') == 'assigned']
     picked = [d for d in deliveries if d.get('status') == 'picked']
     on_way = [d for d in deliveries if d.get('status') == 'on_way']
@@ -582,6 +546,4 @@ def dashboard(request):
     if not headers:
         return redirect('/login/')
     
-    # Get user info from session or make an API call
-    # For now, redirect to products page as default
     return redirect('/')

@@ -1,187 +1,238 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-6 fade-in max-w-7xl">
     <!-- Success/Error Messages -->
     {% if success %}
-    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-lg" role="alert">
-        <div class="flex items-center">
-            <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+    <div class="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 mb-6 rounded-lg shadow-sm" role="alert">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
             <div>
-                <p class="font-bold">Success!</p>
-                <p>{{ success }}</p>
+                <p class="font-bold text-green-800">Success!</p>
+                <p class="text-green-700 text-sm">{{ success }}</p>
             </div>
         </div>
     </div>
     {% endif %}
     {% if error %}
-    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg" role="alert">
-        <div class="flex items-center">
-            <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 20 20">
+    <div class="bg-gradient-to-r from-red-50 to-pink-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg shadow-sm" role="alert">
+        <div class="flex items-center gap-3">
+            <svg class="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
             </svg>
             <div>
-                <p class="font-bold">Error!</p>
-                <p>{{ error }}</p>
+                <p class="font-bold text-red-800">Error!</p>
+                <p class="text-red-700 text-sm">{{ error }}</p>
             </div>
         </div>
     </div>
     {% endif %}
 
-    <!-- Back Button -->
-    <div class="mb-6">
-        <a href="/" class="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Breadcrumb & Navigation -->
+    <div class="mb-2">
+        <a href="/" class="inline-flex items-center px-2 py-1 bg-white rounded text-purple-600 text-xs">
+            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
-            Back to Products
+            Back
         </a>
     </div>
 
-    <!-- Product Detail Card -->
-    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div class="grid md:grid-cols-2 gap-8 p-8">
-            <!-- Product Image Placeholder -->
-            <div class="flex items-center justify-center bg-gray-100 rounded-lg p-12">
-                <div class="text-center">
-                    <svg class="w-48 h-48 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                    </svg>
-                    <p class="text-gray-500 mt-4 text-lg">{{ product.name }}</p>
+    <!-- Main Product Card -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-6">
+        <div class="grid lg:grid-cols-2 gap-4 p-4">
+            <!-- Product Image Section -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-20 space-y-2">
+                    <div class="relative bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden h-56 flex items-center justify-center">
+                        {% if product.image %}
+                        <div class="relative group w-full h-full flex items-center justify-center">
+                            <img src="{{ product.image }}" alt="{{ product.name }}" class="w-full h-full object-contain p-4 group-hover:scale-110 transition-transform duration-500">
+                        </div>
+                        {% else %}
+                        <div class="text-center">
+                            <svg class="w-32 h-32 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                            <p class="text-gray-400 mt-4 text-sm">No image available</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Quick Stock Status -->
+                    {% if product.stock > 0 %}
+                        <div class="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                            <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                            <span class="text-sm font-semibold text-emerald-700">In Stock</span>
+                        </div>
+                    {% else %}
+                        <div class="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <span class="text-sm font-semibold text-red-700">Out of Stock</span>
+                        </div>
+                    {% endif %}
+
+                    <!-- Product Specs Summary (Compact) -->
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-2 space-y-1 border border-gray-200">
+                        <h4 class="text-[10px] font-bold text-gray-700 uppercase tracking-wide">Details</h4>
+                        <div class="space-y-1 text-[11px]">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">ID:</span>
+                                <span class="font-mono font-bold text-gray-800">#{{ product.id }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Category:</span>
+                                <span class="font-semibold text-gray-800">{{ product.category|default:"N/A" }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Price:</span>
+                                <span class="font-bold text-purple-600">Rs {{ product.price }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Stock:</span>
+                                <span class="font-bold text-blue-600">{{ product.stock }} units</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Product Information -->
-            <div class="flex flex-col justify-between">
-                <div>
-                    <!-- Product Title & Category -->
-                    <div class="mb-4">
-                        {% if product.category %}
-                        <span class="inline-block bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full mb-3">
-                            {{ product.category }}
-                        </span>
-                        {% endif %}
-                        <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ product.name }}</h1>
+            <!-- Product Details & Order Section -->
+            <div class="lg:col-span-1 flex flex-col">
+                <div class="space-y-3 flex-1">
+                    <!-- Category & Title -->
+                    <div>
+                        <h1 class="text-2xl font-black text-gray-900 mb-1 leading-tight">{{ product.name }}</h1>
                     </div>
 
-                    <!-- Price -->
-                    <div class="mb-6">
-                        <div class="flex items-baseline">
-                            <span class="text-5xl font-bold text-green-600">Rs {{ product.price }}</span>
+                    <!-- Price Highlight -->
+                    <div class="bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg p-3 text-white shadow-lg">
+                        <div class="text-xs font-semibold opacity-90 mb-1">Unit Price</div>
+                        <div class="text-lg font-black mb-2">Rs {{ product.price }}</div>
+                        <div class="border-t border-purple-400 pt-2">
+                            <div class="text-xs font-semibold opacity-90 mb-1">Total Price</div>
+                            <div id="totalPrice" class="text-3xl font-black">Rs {{ product.price }}</div>
                         </div>
                     </div>
 
-                    <!-- Stock Status -->
-                    <div class="mb-6">
-                        {% if product.stock > 0 %}
-                            {% if product.stock <= 5 %}
-                            <div class="flex items-center text-orange-600">
-                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="font-semibold">Only {{ product.stock }} left in stock!</span>
-                            </div>
-                            {% else %}
-                            <div class="flex items-center text-green-600">
-                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                                </svg>
-                                <span class="font-semibold">In Stock ({{ product.stock }} available)</span>
-                            </div>
-                            {% endif %}
-                        {% else %}
-                        <div class="flex items-center text-red-600">
-                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                            </svg>
-                            <span class="font-semibold">Out of Stock</span>
-                        </div>
-                        {% endif %}
+                    <!-- Stock & Availability -->
+                    <div class="bg-purple-50 border border-purple-200 rounded-lg p-2">
+                        <p class="text-[10px] text-purple-600 font-semibold uppercase">Delivery</p>
+                        <p class="text-lg font-bold text-purple-900">2-3 Days</p>
                     </div>
 
-                    <!-- Description -->
-                    <div class="mb-6">
-                        <h3 class="text-xl font-semibold text-gray-900 mb-3">Description</h3>
-                        <p class="text-gray-700 leading-relaxed">{{ product.description }}</p>
+                    <!-- Description (Collapsible) -->
+                    <div id="descSection" style="display:none;">
+                        <p class="text-sm text-gray-700 leading-relaxed">{{ product.description }}</p>
+                        <button onclick="toggleDesc()" class="text-xs text-purple-600 hover:text-purple-700 font-semibold mt-2">Show Less</button>
                     </div>
+                    <button onclick="toggleDesc()" id="showMoreBtn" class="text-xs text-purple-600 hover:text-purple-700 font-semibold">Show Description</button>
 
                     <!-- Supplier Info -->
                     {% if product.supplier %}
-                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-                        <p class="text-sm text-gray-600">
-                            <span class="font-semibold">Supplied by:</span> {{ product.supplier }}
-                        </p>
+                    <div class="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200 rounded-lg p-2 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                        </svg>
+                        <div>
+                            <p class="text-[10px] text-amber-600 font-semibold uppercase">by</p>
+                            <p class="text-xs text-gray-800 font-bold">{{ product.supplier }}</p>
+                        </div>
                     </div>
                     {% endif %}
                 </div>
 
-                <!-- Order Form -->
-                {% if product.stock > 0 %}
-                <div class="border-t pt-6 mt-6">
-                    <form method="post" action="/products/{{ product.id }}/order/" class="space-y-4">
+                <!-- Buy now section-->
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    {% if product.stock > 0 %}
+                    <form method="post" action="/products/{{ product.id }}/order/" class="space-y-2">
                         {% csrf_token %}
                         <input type="hidden" name="product_id" value="{{ product.id }}">
                         
                         <div>
-                            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-2">Quantity</label>
-                            <div class="flex items-center space-x-4">
-                                <input type="number" 
-                                       id="quantity"
-                                       name="quantity" 
-                                       value="1" 
-                                       min="1" 
-                                       max="{{ product.stock }}" 
-                                       class="border-2 border-gray-300 rounded-lg p-3 w-24 text-lg font-semibold focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                                <span class="text-gray-600">of {{ product.stock }} available</span>
+                            <label for="quantity" class="block text-xs font-bold text-gray-800 mb-1">Qty</label>
+                            <div class="flex items-center gap-2 bg-gray-50 p-2 rounded-lg border border-gray-200 w-fit">
+                                <button type="button" onclick="decrementQty()" class="w-8 h-8 bg-white rounded shadow hover:bg-gray-100 transition flex items-center justify-center font-bold text-gray-600">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"/>
+                                    </svg>
+                                </button>
+                                <div class="text-center min-w-20">
+                                    <input type="number" 
+                                           id="quantity"
+                                           name="quantity" 
+                                           value="1" 
+                                           min="1" 
+                                           max="{{ product.stock }}" 
+                                           class="w-12 text-center text-lg font-black text-purple-600 bg-transparent border-0 focus:ring-0"
+                                           readonly>
+                                </div>
+                                <button type="button" onclick="incrementQty()" class="w-8 h-8 bg-white rounded shadow hover:bg-gray-100 transition flex items-center justify-center font-bold text-gray-600">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
                         <button type="submit" 
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-6 rounded-lg transition duration-200 transform hover:scale-105 shadow-lg flex items-center justify-center">
-                            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold py-2 px-3 rounded-lg transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2 text-xs mt-2">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
-                            Add to Cart & Place Order
+                            Buy {{ product.name }} Now
                         </button>
                     </form>
-                </div>
-                {% else %}
-                <div class="border-t pt-6 mt-6">
-                    <button disabled class="w-full bg-gray-300 text-gray-500 font-bold py-4 px-6 rounded-lg cursor-not-allowed">
-                        Out of Stock
-                    </button>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Additional Information Section -->
-    <div class="mt-8 bg-white rounded-lg shadow-lg p-8">
-        <h3 class="text-2xl font-bold text-gray-900 mb-4">Product Details</h3>
-        <div class="grid md:grid-cols-2 gap-6">
-            <div class="space-y-3">
-                <div class="flex justify-between border-b pb-2">
-                    <span class="font-semibold text-gray-700">Product ID:</span>
-                    <span class="text-gray-600">#{{ product.id }}</span>
-                </div>
-                <div class="flex justify-between border-b pb-2">
-                    <span class="font-semibold text-gray-700">Category:</span>
-                    <span class="text-gray-600">{{ product.category|default:"Uncategorized" }}</span>
-                </div>
-            </div>
-            <div class="space-y-3">
-                <div class="flex justify-between border-b pb-2">
-                    <span class="font-semibold text-gray-700">Price:</span>
-                    <span class="text-gray-600">Rs {{ product.price }}</span>
-                </div>
-                <div class="flex justify-between border-b pb-2">
-                    <span class="font-semibold text-gray-700">Availability:</span>
-                    <span class="text-gray-600">{{ product.stock }} units</span>
+                    {% else %}
+                    <div class="bg-red-50 border-2 border-red-200 rounded-lg p-3 text-center">
+                        <h3 class="text-sm font-bold text-red-900">Out of Stock</h3>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function toggleDesc() {
+        const descSection = document.getElementById('descSection');
+        const showMoreBtn = document.getElementById('showMoreBtn');
+        if (descSection.style.display === 'none') {
+            descSection.style.display = 'block';
+            showMoreBtn.style.display = 'none';
+        } else {
+            descSection.style.display = 'none';
+            showMoreBtn.style.display = 'block';
+        }
+    }
+
+    function incrementQty() {
+        const input = document.getElementById('quantity');
+        const max = parseInt(input.max);
+        const current = parseInt(input.value);
+        if (current < max) {
+            input.value = current + 1;
+            updateTotalPrice();
+        }
+    }
+    
+    function decrementQty() {
+        const input = document.getElementById('quantity');
+        const min = parseInt(input.min);
+        const current = parseInt(input.value);
+        if (current > min) {
+            input.value = current - 1;
+            updateTotalPrice();
+        }
+    }
+
+    function updateTotalPrice() {
+        const quantity = parseInt(document.getElementById('quantity').value);
+        const unitPrice = {{ product.price }};
+        const totalPrice = quantity * unitPrice;
+        document.getElementById('totalPrice').textContent = 'Rs ' + totalPrice.toLocaleString('en-IN');
+    }
+</script>
 {% endblock %}

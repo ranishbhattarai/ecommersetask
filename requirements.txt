@@ -1,0 +1,7 @@
+Django==4.2.0
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.2.2
+django-filter==23.1
+drf-spectacular==0.26.1
+requests==2.31.0
+python-decouple==3.8

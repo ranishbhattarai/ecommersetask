@@ -11,7 +11,6 @@ from rest_framework import status
 from django.core.mail import send_mail
 from products.models import Product
 
-# Create your views here.
 class OrderViewSet(ModelViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
@@ -78,7 +77,8 @@ class OrderViewSet(ModelViewSet):
                     fail_silently=True,
                 )
             except Exception as e:
-                print(f"Email sending failed: {e}")
+                # Swallow email errors in production; logging can be added if needed
+                pass
         
         return Response({
             'message': 'Order placed successfully', 

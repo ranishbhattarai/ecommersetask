@@ -6,8 +6,6 @@ from .serializers import DeliveryAssignmentSerializer
 from users.permissions import IsDeliveryPerson, IsAdmin
 from notifications.utils import notify
 
-# Create your views here.
-
 class DeliveryAssignmentViewSet(ModelViewSet):
     serializer_class = DeliveryAssignmentSerializer
     permission_classes = [IsAuthenticated]

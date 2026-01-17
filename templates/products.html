@@ -1,25 +1,67 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mx-auto px-4 py-6">
-    <h2 class="text-2xl font-bold mb-4">Products</h2>
+<div class="max-w-7xl mx-auto px-4 py-12 fade-in">
+    <div class="mb-12">
+        <h1 class="text-4xl font-black text-gray-900 mb-3">Explore Our Products</h1>
+        <p class="text-lg text-gray-600">Discover amazing deals on quality products</p>
+        <div class="h-1 w-20 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full mt-4"></div>
+    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {% for p in products %}
-        <div class="bg-white p-4 shadow rounded hover:shadow-lg transition">
-            <h3 class="font-semibold text-lg">{{ p.name }}</h3>
-            <p class="text-gray-600">Rs {{ p.price }}</p>
+        <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden card-hover group h-full flex flex-col">
+            <!-- Product Image -->
+            <div class="relative h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden flex items-center justify-center">
+                {% if p.image %}
+                <img src="{{ p.image }}" alt="{{ p.name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                {% else %}
+                <svg class="w-24 h-24 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+                {% endif %}
+                
+                <!-- Stock Badge -->
+                {% if p.stock > 0 %}
+                <div class="absolute top-3 right-3 bg-emerald-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg">
+                    In Stock
+                </div>
+                {% else %}
+                <div class="absolute top-3 right-3 bg-red-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-lg">
+                    Sold Out
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Product Info -->
+            <div class="p-6 flex flex-col flex-1">
+                <h3 class="font-bold text-lg mb-2 text-gray-900 line-clamp-2">{{ p.name }}</h3>
+                
+                <p class="text-sm text-gray-600 mb-4 flex-1">
+                    {% if p.category %}
+                    <span class="inline-block px-2 py-1 bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold">{{ p.category }}</span>
+                    {% endif %}
+                </p>
 
-            {% if p.stock > 0 %}
-            <span class="text-green-600 text-sm">In Stock ({{ p.stock }} available)</span>
-            {% else %}
-            <span class="text-red-600 text-sm">Out of Stock</span>
-            {% endif %}
+                <div class="mb-4 pb-4 border-t">
+                    <p class="text-3xl font-black text-purple-600 mt-3">Rs {{ p.price }}</p>
+                    {% if p.stock > 0 %}
+                    <p class="text-xs text-gray-500 mt-1">{{ p.stock }} units available</p>
+                    {% else %}
+                    <p class="text-xs text-red-600 mt-1 font-semibold">Out of stock</p>
+                    {% endif %}
+                </div>
 
-            <a href="/products/{{ p.id }}/" class="block mt-4 text-blue-600 font-medium hover:underline">View Details</a>
+                <a href="/products/{{ p.id }}/" class="w-full text-center bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 rounded-lg font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]">
+                    View Details
+                </a>
+            </div>
         </div>
         {% empty %}
-        <div class="col-span-3 text-center py-8">
-            <p class="text-gray-500">No products available at the moment.</p>
+        <div class="col-span-full text-center py-16">
+            <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+            <p class="text-lg text-gray-500 font-semibold">No products available at the moment.</p>
         </div>
         {% endfor %}
     </div>

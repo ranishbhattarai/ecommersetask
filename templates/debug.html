@@ -3,48 +3,48 @@
 {% block title %}Session Debug{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card">
-        <div class="card-header bg-primary text-white">
-            <h3>Session Debug Information</h3>
+<div class="max-w-4xl mx-auto px-4 py-10">
+    <div class="bg-white rounded-lg shadow-lg">
+        <div class="bg-blue-500 text-white px-6 py-4 rounded-t-lg">
+            <h3 class="text-2xl font-semibold">🔍 Session Debug Information</h3>
         </div>
-        <div class="card-body">
-            <table class="table table-bordered">
-                <tr>
-                    <th>Key</th>
-                    <th>Value</th>
+        <div class="p-6">
+            <table class="w-full border-collapse border border-gray-300">
+                <tr class="bg-gray-100">
+                    <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Key</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left font-semibold">Value</th>
                 </tr>
                 <tr>
-                    <td><strong>Role</strong></td>
-                    <td><code>{{ role }}</code></td>
+                    <td class="border border-gray-300 px-4 py-2"><strong>Role</strong></td>
+                    <td class="border border-gray-300 px-4 py-2"><code class="bg-gray-100 px-2 py-1 rounded">{{ role }}</code></td>
+                </tr>
+                <tr class="bg-gray-50">
+                    <td class="border border-gray-300 px-4 py-2"><strong>Username</strong></td>
+                    <td class="border border-gray-300 px-4 py-2"><code class="bg-gray-100 px-2 py-1 rounded">{{ username }}</code></td>
                 </tr>
                 <tr>
-                    <td><strong>Username</strong></td>
-                    <td><code>{{ username }}</code></td>
-                </tr>
-                <tr>
-                    <td><strong>Access Token</strong></td>
-                    <td><code>{{ access }}</code></td>
+                    <td class="border border-gray-300 px-4 py-2"><strong>Access Token</strong></td>
+                    <td class="border border-gray-300 px-4 py-2"><code class="bg-gray-100 px-2 py-1 rounded">{{ access }}</code></td>
                 </tr>
             </table>
 
-            <h5 class="mt-4">Full Session Data:</h5>
-            <pre><code>{{ session_data }}</code></pre>
+            <h5 class="text-lg font-semibold mt-6 mb-3">Full Session Data:</h5>
+            <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code>{{ session_data }}</code></pre>
 
-            <hr>
+            <hr class="my-6">
             
-            <div class="alert alert-info">
-                <strong>Current User Role:</strong> <code>{{ role }}</code>
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg mb-4">
+                <strong>Current User Role:</strong> <code class="bg-blue-100 px-2 py-1 rounded ml-2">{{ role }}</code>
             </div>
 
             {% if role == 'admin' %}
-            <div class="alert alert-success">
-                ✓ Role is correctly set to 'admin'
-                <a href="/dashboard/admin/" class="btn btn-sm btn-primary ms-2">Go to Admin Dashboard</a>
+            <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-lg flex items-center justify-between">
+                <span>✓ Role is correctly set to 'admin'</span>
+                <a href="/dashboard/admin/" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-semibold">Go to Admin Dashboard</a>
             </div>
             {% else %}
-            <div class="alert alert-warning">
-                ✗ Role is not set to 'admin'. Current role: <code>{{ role }}</code>
+            <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg">
+                ✗ Role is not set to 'admin'. Current role: <code class="bg-amber-100 px-2 py-1 rounded">{{ role }}</code>
             </div>
             {% endif %}
         </div>

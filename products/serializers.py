@@ -8,6 +8,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     supplier = serializers.ReadOnlyField(source='supplier.username')
+    image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Product

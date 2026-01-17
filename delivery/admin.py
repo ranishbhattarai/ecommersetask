@@ -1,8 +1,6 @@
 from django.contrib import admin
 from .models import DeliveryAssignment
 
-# Register your models here.
-
 @admin.register(DeliveryAssignment)
 class DeliveryAssignmentAdmin(admin.ModelAdmin):
     list_display = ['id', 'order', 'delivery_person', 'status', 'assigned_at']

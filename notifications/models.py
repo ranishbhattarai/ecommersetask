@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 
-# Create your models here.
 user=settings.AUTH_USER_MODEL
 
 class Notification(models.Model):

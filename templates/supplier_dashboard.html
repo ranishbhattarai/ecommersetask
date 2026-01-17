@@ -3,89 +3,93 @@
 {% block title %}Supplier Dashboard{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h1 class="mb-4">Supplier Dashboard - Inventory Management</h1>
+<div class="max-w-6xl mx-auto px-4 py-10 space-y-8">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Supplier Dashboard - Inventory Management</h1>
+    </div>
     
     <!-- Inventory Summary Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Total Products</h5>
-                    <h2>{{ total_products }}</h2>
-                </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-xl">📦</div>
+            <div>
+                <p class="text-sm text-gray-500">Total Products</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ total_products }}</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Low Stock</h5>
-                    <h2>{{ low_stock_count }}</h2>
-                    <small>Less than 10 units</small>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-amber-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-xl">⚠️</div>
+            <div>
+                <p class="text-sm text-gray-500">Low Stock</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ low_stock_count }}</p>
+                <p class="text-xs text-gray-500">Less than 10 units</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-danger text-white">
-                <div class="card-body">
-                    <h5 class="card-title">Out of Stock</h5>
-                    <h2>{{ out_of_stock_count }}</h2>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-red-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center text-xl">❌</div>
+            <div>
+                <p class="text-sm text-gray-500">Out of Stock</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ out_of_stock_count }}</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body">
-                    <h5 class="card-title">In Stock</h5>
-                    <h2>{{ total_products|add:"-"|add:low_stock_count|add:"-"|add:out_of_stock_count|default:total_products }}</h2>
-                </div>
+        <div class="bg-white rounded-2xl shadow-sm border border-emerald-100 p-4 flex items-start gap-3 card-hover">
+            <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl">✓</div>
+            <div>
+                <p class="text-sm text-gray-500">In Stock</p>
+                <p class="text-2xl font-semibold text-gray-900">{{ total_products|add:"-"|add:low_stock_count|add:"-"|add:out_of_stock_count|default:total_products }}</p>
             </div>
         </div>
     </div>
 
     <!-- Low Stock Alert -->
     {% if low_stock_products %}
-    <div class="alert alert-warning mb-4" role="alert">
-        <h5><i class="bi bi-exclamation-triangle"></i> Low Stock Alert!</h5>
-        <p>You have {{ low_stock_count }} product(s) with low stock. Please restock soon!</p>
+    <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-lg">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">⚠️</span>
+            <div>
+                <h5 class="font-bold text-amber-900">Low Stock Alert!</h5>
+                <p class="text-amber-800 text-sm">You have {{ low_stock_count }} product(s) with low stock. Please restock soon!</p>
+            </div>
+        </div>
     </div>
     {% endif %}
 
     <!-- Low Stock Products Table -->
     {% if low_stock_products %}
-    <div class="card mb-4">
-        <div class="card-header bg-warning">
-            <h5 class="mb-0">Low Stock Products</h5>
+    <div class="bg-white rounded-2xl shadow-sm border border-amber-200 overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-amber-100 to-yellow-50">
+            <h3 class="text-lg font-semibold text-gray-900">Low Stock Products</h3>
+            <span class="px-3 py-1 bg-white border border-amber-200 rounded-full text-amber-700 text-sm font-medium">{{ low_stock_products|length }} items</span>
         </div>
-        <div class="card-body">
-            <table class="table table-striped">
+        <div class="overflow-x-auto">
+            <table class="min-w-full text-left text-sm">
                 <thead>
-                    <tr>
-                        <th>Product Name</th>
-                        <th>Category</th>
-                        <th>Current Stock</th>
-                        <th>Price</th>
-                        <th>Status</th>
+                    <tr class="text-gray-500 border-b">
+                        <th class="py-3 px-4 font-semibold">Product Name</th>
+                        <th class="py-3 px-4 font-semibold">Category</th>
+                        <th class="py-3 px-4 font-semibold">Current Stock</th>
+                        <th class="py-3 px-4 font-semibold">Price</th>
+                        <th class="py-3 px-4 font-semibold">Status</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y">
                     {% for product in low_stock_products %}
-                    <tr>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.category }}</td>
-                        <td>
+                    <tr class="hover:bg-amber-50/60">
+                        <td class="py-3 px-4 font-medium text-gray-900">{{ product.name }}</td>
+                        <td class="py-3 px-4 text-gray-700">{{ product.category }}</td>
+                        <td class="py-3 px-4">
                             {% if product.stock == 0 %}
-                            <span class="badge bg-danger">{{ product.stock }}</span>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">{{ product.stock }}</span>
                             {% else %}
-                            <span class="badge bg-warning">{{ product.stock }}</span>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">{{ product.stock }}</span>
                             {% endif %}
                         </td>
-                        <td>${{ product.price }}</td>
-                        <td>
+                        <td class="py-3 px-4 text-gray-900">Rs {{ product.price }}</td>
+                        <td class="py-3 px-4">
                             {% if product.stock == 0 %}
-                            <span class="badge bg-danger">Out of Stock</span>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Out of Stock</span>
                             {% else %}
-                            <span class="badge bg-warning">Low Stock</span>
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Low Stock</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -97,50 +101,50 @@
     {% endif %}
 
     <!-- All Products Inventory -->
-    <div class="card">
-        <div class="card-header">
-            <h5>All Products Inventory</h5>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b bg-gray-50">
+            <h3 class="text-lg font-semibold text-gray-900">All Products Inventory</h3>
         </div>
-        <div class="card-body">
+        <div class="overflow-x-auto">
             {% if products %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Product Name</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Stock</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for product in products %}
-                        <tr>
-                            <td>#{{ product.id }}</td>
-                            <td>{{ product.name }}</td>
-                            <td>{{ product.category }}</td>
-                            <td>${{ product.price }}</td>
-                            <td>{{ product.stock }}</td>
-                            <td>
-                                {% if product.stock == 0 %}
-                                <span class="badge bg-danger">Out of Stock</span>
-                                {% elif product.stock < 10 %}
-                                <span class="badge bg-warning">Low Stock</span>
-                                {% else %}
-                                <span class="badge bg-success">In Stock</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ product.created_at|slice:":10" }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+            <table class="min-w-full text-left text-sm">
+                <thead>
+                    <tr class="text-gray-500 border-b">
+                        <th class="py-3 px-4 font-semibold">ID</th>
+                        <th class="py-3 px-4 font-semibold">Product Name</th>
+                        <th class="py-3 px-4 font-semibold">Category</th>
+                        <th class="py-3 px-4 font-semibold">Price</th>
+                        <th class="py-3 px-4 font-semibold">Stock</th>
+                        <th class="py-3 px-4 font-semibold">Status</th>
+                        <th class="py-3 px-4 font-semibold">Created</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    {% for product in products %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="py-3 px-4 font-semibold text-gray-900">#{{ product.id }}</td>
+                        <td class="py-3 px-4 text-gray-900">{{ product.name }}</td>
+                        <td class="py-3 px-4 text-gray-700">{{ product.category }}</td>
+                        <td class="py-3 px-4 text-gray-900">Rs {{ product.price }}</td>
+                        <td class="py-3 px-4 text-gray-900">{{ product.stock }}</td>
+                        <td class="py-3 px-4">
+                            {% if product.stock == 0 %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Out of Stock</span>
+                            {% elif product.stock < 10 %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">Low Stock</span>
+                            {% else %}
+                            <span class="px-2 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">In Stock</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-gray-600">{{ product.created_at|slice:":10" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             {% else %}
-            <p>No products found. Start adding products to your inventory!</p>
+            <div class="p-6 text-center">
+                <p class="text-gray-600">No products found. Start adding products to your inventory!</p>
+            </div>
             {% endif %}
         </div>
     </div>

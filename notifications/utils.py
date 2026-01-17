@@ -1,4 +1,3 @@
-#in-app notification
 from .models import Notification
 
 def notify(user, message):
